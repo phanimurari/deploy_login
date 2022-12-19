@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 
 let db = null;
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
 
 const initializeDBAndServer = async () => {
   try {
@@ -48,7 +48,6 @@ const authenticateToken = (request, response, next) => {
   }
 };
 
-	
 //User Register API
 app.post("/users/", async (request, response) => {
   const { username, password } = request.body;
@@ -94,85 +93,71 @@ app.post("/login/", async (request, response) => {
   }
 });
 
-
 app.get("/fruits/", authenticateToken, async (request, response) => {
-    const fruitsGetQuery = `
+  const fruitsGetQuery = `
       SELECT * FROM fruits;`;
-    const fruits = await db.all(fruitsGetQuery);
-    response.send(fruits)
-    
-  });
+  const fruits = await db.all(fruitsGetQuery);
+  response.send(fruits);
+});
 
-
-
-
-  
-  app.get("/fruits/:fruitId/", authenticateToken, async (request, response) => {
-    const { fruitId } = request.params;
-    const getFruitQuery = `
+app.get("/fruits/:fruitId/", authenticateToken, async (request, response) => {
+  const { fruitId } = request.params;
+  const getFruitQuery = `
       SELECT 
         *
       FROM 
         fruits 
       WHERE 
         id = ${fruitId};`;
-    const fruit = await db.get(getFruitQuery);
-    response.send(fruit);
-  });
+  const fruit = await db.get(getFruitQuery);
+  response.send(fruit);
+});
 
-  
-  app.post("/fruits/", authenticateToken, async (request, response) => {
-    const { fruitName } = request.body;
-    const postFruitQuery = `
+app.post("/fruits/", authenticateToken, async (request, response) => {
+  const { fruitName } = request.body;
+  const postFruitQuery = `
     INSERT INTO
       fruits ( fruit_name)
     VALUES
       ('${fruitName}');`;
-  
-    await db.run(postFruitQuery);
-    const afterpost = `SELECT * FROM fruits`
-    response.json(await db.all(afterpost));
-    // response.send("Fruit Successfully Added");
-  });
-  
 
+  await db.run(postFruitQuery);
+  const afterpost = `SELECT * FROM fruits`;
+  response.json(await db.all(afterpost));
+  // response.send("Fruit Successfully Added");
+});
 
-  app.delete("/fruits/:fruitId/",
-    authenticateToken,
-    async (request, response) => {
-      const { fruitId } = request.params;
-      const deleteFruitQuery = `
+app.delete(
+  "/fruits/:fruitId/",
+  authenticateToken,
+  async (request, response) => {
+    const { fruitId } = request.params;
+    const deleteFruitQuery = `
     DELETE FROM
       fruits
     WHERE
       id = ${fruitId};`;
-      await db.run(deleteFruitQuery);
-      const afterdelete = `SELECT * FROM fruits`
-      response.json(await db.all(afterdelete));
-    }
-  );
-  
+    await db.run(deleteFruitQuery);
+    const afterdelete = `SELECT * FROM fruits`;
+    response.json(await db.all(afterdelete));
+  }
+);
 
-  app.put(
-    "/fruits/:fruitId/",
-    authenticateToken,
-    async (request, response) => {
-      const {fruitName} = request.body;
-      const { fruitId } = request.params;
-      const updateFruitQuery = `
+app.put("/fruits/:fruitId/", authenticateToken, async (request, response) => {
+  const { fruitName } = request.body;
+  const { fruitId } = request.params;
+  const updateFruitQuery = `
               UPDATE
                 fruits
               SET
                 fruit_name = '${fruitName}'
             WHERE
                 id = ${fruitId};`;
-  
-      await db.run(updateFruitQuery);
-      const afterput = `SELECT * FROM fruits`
-      response.json(await db.all(afterput));
-    //   response.send("Fruit Updated Successfully");
-    }
-  );
-  
 
-  
+  await db.run(updateFruitQuery);
+  const afterput = `SELECT * FROM fruits`;
+  response.json(await db.all(afterput));
+  //   response.send("Fruit Updated Successfully");
+});
+
+module.exports = app;
